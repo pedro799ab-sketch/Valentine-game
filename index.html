@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catch Me If You Can 💕</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            text-align: center;
+            color: white;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .instructions {
+            font-size: 1.2em;
+            margin-bottom: 30px;
+            background: rgba(255,255,255,0.2);
+            padding: 20px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .game-area {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .photo {
+            position: absolute;
+            cursor: pointer;
+            border: 3px solid white;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+            background: #fff;
+            padding: 5px;
+        }
+
+        .photo:hover {
+            transform: scale(1.1);
+            box-shadow: 0 12px 30px rgba(255,255,255,0.4);
+        }
+
+        .photo.caught {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .score {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            font-size: 2em;
+            background: rgba(255,255,255,0.3);
+            padding: 15px 30px;
+            border-radius: 50px;
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+        }
+
+        .victory {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            padding: 50px;
+            border-radius: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            z-index: 2000;
+            text-align: center;
+            transition: transform 0.5s ease;
+        }
+
+        .victory.show {
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .victory h2 {
+            font-size: 3em;
+            margin-bottom: 20px;
+            animation: heartbeat 1.5s infinite;
+        }
+
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            25% { transform: scale(1.1); }
+            50% { transform: scale(1); }
+        }
+
+        .victory p {
+            font-size: 1.5em;
+            line-height: 1.6;
+        }
+
+        .emoji-rain {
+            position: fixed;
+            font-size: 3em;
+            pointer-events: none;
+            z-index: 1500;
+            animation: fall 3s linear;
+        }
+
+        @keyframes fall {
+            0% {
+                transform: translateY(-100px) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .start-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 3000;
+            transition: opacity 0.5s ease;
+        }
+
+        .start-screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .start-btn {
+            font-size: 1.5em;
+            padding: 20px 50px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border: none;
+            border-radius: 50px;
+            color: white;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+            margin-top: 30px;
+        }
+
+        .start-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+        }
+
+        .preview-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+            max-width: 600px;
+        }
+
+        .preview-img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 10px;
+            border: 2px solid white;
+        }
+        
+        .loading {
+            font-size: 1.3em;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="start-screen" id="startScreen">
+        <div class="container">
+            <h1>💕 Catch My Heart 💕</h1>
+            <div class="instructions">
+                <p>Hey nour, My Gorgeous! 😘</p>
+                <p>Ready for a sexy little game?</p>
+                <p>Catch all our special moments together...</p>
+                <p>If you're quick enough, you'll win a prize! 💋</p>
+            </div>
+            <div class="loading" id="loading">Loading our memories... 💕</div>
+            <button class="start-btn" id="startBtn">Let's Play Baby! 💖</button>
+        </div>
+    </div>
+
+    <div class="score" id="score">Caught: 0/0</div>
+    <div class="game-area" id="gameArea"></div>
+    <div class="victory" id="victory">
+        <h2>🎉 CONGRATULATIONS NOUNYYY! 🎉</h2>
+        <p>You caught all our memories! 💕</p>
+        <p style="font-size: 4em; margin: 20px 0;">💋❤️🔥😍💖</p>
+        <p>You deserve me as a Valentine's gift!</p>
+        <p>I love you and I will always love you! 😘</p>
+        <p style="font-size: 2em; margin-top: 20px;">💝 Forever Yours 💝</p>
+    </div>
+
+    <script>
+        let photos = [];
+        let totalPhotos = 0;
+        let caughtPhotos = 0;
+        let gameStarted = false;
+        let photoObjects = [];
+
+        const startBtn = document.getElementById('startBtn');
+        const startScreen = document.getElementById('startScreen');
+        const gameArea = document.getElementById('gameArea');
+        const scoreDisplay = document.getElementById('score');
+        const victory = document.getElementById('victory');
+        const loading = document.getElementById('loading');
+
+        // Photo paths from Desktop/val folder
+        const photoFiles = [
+            'Desktop/val/Screenshot 2026-02-13 at 22.29.30.png',
+            'Desktop/val/Screenshot 2026-02-13 at 22.29.40.png',
+            'Desktop/val/Screenshot 2026-02-13 at 22.29.53.png',
+            'Desktop/val/Screenshot 2026-02-13 at 22.30.04.png',
+            'Desktop/val/photo1.jpg',
+            'Desktop/val/photo2.jpg'
+        ];
+
+        // Load photos on page load
+        window.addEventListener('load', () => {
+            photos = photoFiles.slice(); // Copy the array
+            loading.textContent = `${photos.length} photos ready! 💕`;
+            startBtn.disabled = false;
+        });
+
+        startBtn.addEventListener('click', startGame);
+
+        function startGame() {
+            if (photos.length < 1) {
+                alert('No photos found! 💕');
+                return;
+            }
+
+            startScreen.classList.add('hidden');
+            gameStarted = true;
+            totalPhotos = photos.length;
+            scoreDisplay.textContent = `Caught: 0/${totalPhotos}`;
+
+            photos.forEach((photoSrc, index) => {
+                setTimeout(() => createPhoto(photoSrc, index), index * 500);
+            });
+        }
+
+        function createPhoto(src, index) {
+            const photo = document.createElement('img');
+            photo.src = src;
+            photo.className = 'photo';
+            
+            const size = Math.random() * 100 + 80; // 80-180px
+            photo.style.width = size + 'px';
+            photo.style.height = size + 'px';
+            photo.style.objectFit = 'cover';
+            
+            const startX = Math.random() * (window.innerWidth - size);
+            const startY = Math.random() * (window.innerHeight - size);
+            photo.style.left = startX + 'px';
+            photo.style.top = startY + 'px';
+
+            photo.addEventListener('click', function() {
+                if (!this.classList.contains('caught')) {
+                    catchPhoto(this);
+                }
+            });
+
+            gameArea.appendChild(photo);
+
+            const photoObj = {
+                element: photo,
+                vx: (Math.random() - 0.5) * 4,
+                vy: (Math.random() - 0.5) * 4,
+                size: size,
+                scaleDirection: 1,
+                scale: 1,
+                minScale: 0.5,
+                maxScale: 1.5
+            };
+
+            photoObjects.push(photoObj);
+        }
+
+        function catchPhoto(photoElement) {
+            photoElement.classList.add('caught');
+            caughtPhotos++;
+            scoreDisplay.textContent = `Caught: ${caughtPhotos}/${totalPhotos}`;
+
+            createHeartBurst(photoElement);
+
+            if (caughtPhotos === totalPhotos) {
+                setTimeout(showVictory, 500);
+            }
+        }
+
+        function createHeartBurst(element) {
+            const rect = element.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+
+            const emojis = ['💕', '💖', '💗', '💓', '💝', '❤️', '💋', '😍'];
+            
+            for (let i = 0; i < 8; i++) {
+                const emoji = document.createElement('div');
+                emoji.className = 'emoji-rain';
+                emoji.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                emoji.style.left = centerX + 'px';
+                emoji.style.top = centerY + 'px';
+                document.body.appendChild(emoji);
+
+                setTimeout(() => emoji.remove(), 3000);
+            }
+        }
+
+        function showVictory() {
+            victory.classList.add('show');
+            
+            const celebrationEmojis = ['💕', '💖', '💗', '💓', '💝', '❤️', '💋', '😍', '🎉', '🎊', '✨', '🌟'];
+            
+            for (let i = 0; i < 50; i++) {
+                setTimeout(() => {
+                    const emoji = document.createElement('div');
+                    emoji.className = 'emoji-rain';
+                    emoji.textContent = celebrationEmojis[Math.floor(Math.random() * celebrationEmojis.length)];
+                    emoji.style.left = Math.random() * window.innerWidth + 'px';
+                    emoji.style.top = '-100px';
+                    document.body.appendChild(emoji);
+                    
+                    setTimeout(() => emoji.remove(), 3000);
+                }, i * 100);
+            }
+        }
+
+        function animatePhotos() {
+            photoObjects.forEach(obj => {
+                if (obj.element.classList.contains('caught')) return;
+
+                const rect = obj.element.getBoundingClientRect();
+                let x = parseFloat(obj.element.style.left);
+                let y = parseFloat(obj.element.style.top);
+
+                x += obj.vx;
+                y += obj.vy;
+
+                if (x <= 0 || x >= window.innerWidth - obj.size) {
+                    obj.vx = -obj.vx;
+                    x = Math.max(0, Math.min(x, window.innerWidth - obj.size));
+                }
+                if (y <= 0 || y >= window.innerHeight - obj.size) {
+                    obj.vy = -obj.vy;
+                    y = Math.max(0, Math.min(y, window.innerHeight - obj.size));
+                }
+
+                obj.element.style.left = x + 'px';
+                obj.element.style.top = y + 'px';
+
+                // Scale animation (minimize/maximize)
+                obj.scale += 0.01 * obj.scaleDirection;
+                if (obj.scale >= obj.maxScale || obj.scale <= obj.minScale) {
+                    obj.scaleDirection *= -1;
+                }
+                obj.element.style.transform = `scale(${obj.scale})`;
+            });
+
+            requestAnimationFrame(animatePhotos);
+        }
+
+        animatePhotos();
+    </script>
+</body>
+</html>
